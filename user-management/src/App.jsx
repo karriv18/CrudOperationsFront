@@ -1,16 +1,19 @@
-import { useState } from 'react'
 import './App.css'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import List from './Pages/List';
+import Add from './Pages/Add';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<List />} />
+          <Route path='/User/Add' element={<Add />} />
+
+        </Routes>
+      </BrowserRouter>
+    </>
   )
 }
 
