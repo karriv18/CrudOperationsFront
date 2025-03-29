@@ -1,32 +1,63 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+const Edit = () => {
+    const { id } = useParams();
 
-const Add = () => {
+    const [Id, setId] = useState(0);
     const [firstName, setFirstName] = useState('');
     const [middleName, setMiddleName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [birthDay, setBirthday] = useState('');
     const [password, setPassword] = useState('');
-
     const [errors, setErrors] = useState({});
+    
     const navigate = useNavigate();
+
     const goToList = () => {
         navigate('/');
     }
-    const createUser = async (data) => {
-        const url = 'https://localhost:44365/api/v1/user-management/users/user-form/';
+    useEffect(() => {
+        const fetchUser = async () => { 
+            const userData = await getUser(id);
+            setId(id)
+            setFirstName(userData.firstName)
+            setMiddleName(userData.middleName)
+            setLastName(userData.lastName)
+            setEmail(userData.email)
+            setBirthday(userData.birthDay)
+            setPassword(userData.password)
+        }
+        fetchUser();
+    }, [id])
 
+
+
+    const getUser = async (id) => {
+        const url = `https://localhost:44365/api/v1/user-management/users/get-user/${id}`;
 
         const headers = {
             "Content-Type": "application/json",
             Accept: "application/json",
         }
-        const userData = {
-            FirstName: data.firstName
+
+        const response = await axios.get(url, { headers });
+
+        return response.data
+    }
+
+    const editUser = async (Id, data) => {
+        console.log(data)
+        const url = `https://localhost:44365/api/v1/user-management/users/user-update-form/?id=${Id}`;
+
+        const headers = {
+            "Content-Type": "application/json",
+            Accept: "application/json",
         }
+
         const response = await axios.post(url, data, { headers });
         console.log(response)
 
@@ -55,7 +86,7 @@ const Add = () => {
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
-            return; // Stop form submission
+            return; 
         }
 
         const data = {
@@ -66,16 +97,10 @@ const Add = () => {
             birthDay,
             password,
         };
-        await createUser(data);
 
-        // Clear form after successful submission
-        setFirstName('');
-        setMiddleName('');
-        setLastName('');
-        setEmail('');
-        setBirthday('');
-        setPassword('');
-        setErrors({});
+        await editUser(Id, data);
+
+        goToList();
     };
 
     return (
@@ -132,7 +157,7 @@ const Add = () => {
 
                 <div className='w-full mx-auto my-10 rounded-lg shadow-md sm:w-11/12'>
                     <Button className='btn btn-success' type="submit">
-                        Add User
+                        Edit User
                     </Button>
                 </div>
             </form>
@@ -140,4 +165,4 @@ const Add = () => {
     );
 };
 
-export default Add;
+export default Edit;

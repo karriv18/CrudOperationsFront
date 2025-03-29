@@ -10,6 +10,10 @@ const List = () => {
   const gotoAddUser = () => {
     navigate('/User/Add');
   }
+
+  const gotoEditUser = (id) => {
+    navigate(`/User/Edit/${id}`);
+  }
   const getAllUsers = async () => {
     const url = 'https://localhost:44365/api/v1/user-management/users';
 
@@ -19,7 +23,7 @@ const List = () => {
     }
 
     const response = await axios.get(url, { headers });
-    console.log(response)
+
     return response.data
 
   }
@@ -62,12 +66,12 @@ const List = () => {
                 <td >{user.middleName}</td>
                 <td >{user.email}</td>
                 <td className="d-flex justify-content-around align-items-center">
-                  <button className='btn btn-warning'>
+                  <Button className='btn btn-warning' onClick={() => gotoEditUser(user.id)}>
                     Edit
-                  </button>
-                  <button className='btn btn-danger'>
+                  </Button>
+                  <Button className='btn btn-danger'>
                     Delete
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
