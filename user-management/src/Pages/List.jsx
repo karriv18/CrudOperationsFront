@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const List = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterBy, setFilterBy] = useState('firstName'); // Default filter by First Name
   const navigate = useNavigate();
 
   const gotoAddUser = () => {
@@ -18,10 +19,8 @@ const List = () => {
 
   const deleteUser = async (id) => {
     const url = `https://localhost:44365/api/v1/user-management/users/delete-user/${id}`;
-
-    await axios.post(url); 
-
-    fetchUsers();
+    await axios.post(url); // Headers are not needed for DELETE
+    fetchUsers(); // Refresh list after deletion
   };
 
   const getAllUsers = async () => {
@@ -39,12 +38,11 @@ const List = () => {
     fetchUsers();
   }, []);
 
-  // Filter users based on search input
-  const filteredUsers = users.filter((user) =>
-    `${user.firstName} ${user.lastName} ${user.email}`
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-  );
+  // Filter users based on selected column (First Name, Last Name, or Email)
+  const filteredUsers = users.filter((user) => {
+    const value = user[filterBy]?.toLowerCase() || ''; // Ensure it doesn't break if the value is missing
+    return value.includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div className='container'>
@@ -56,13 +54,21 @@ const List = () => {
         <Button className='btn btn-success' onClick={gotoAddUser}>
           Add User
         </Button>
-        <Form.Control
-          type='text'
-          placeholder='Search users...'
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className='w-25'
-        />
+
+        <div className='d-flex gap-2'>
+          <Form.Select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
+            <option value="firstName">First Name</option>
+            <option value="lastName">Last Name</option>
+            <option value="email">Email</option>
+          </Form.Select>
+
+          <Form.Control
+            type='text'
+            placeholder={`Search by ${filterBy.replace(/([A-Z])/g, ' $1')}`} // Format label (e.g., firstName -> First Name)
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
       <table className='table table-striped'>
